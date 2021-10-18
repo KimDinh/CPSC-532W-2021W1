@@ -51,8 +51,8 @@ def eval(e, sigma, local_env, func_defs):
         return dist.sample(), sigma
     # case (observe d y)
     elif e[0] == "observe":
-        # behave like sample for now
-        return eval(["sample", e[1]], sigma, local_env, func_defs)
+        # ignore observe for now
+        return None, sigma
     # case (e0 e1 ... en)
     else:
         c = []

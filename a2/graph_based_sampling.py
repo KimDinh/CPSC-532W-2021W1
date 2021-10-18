@@ -12,7 +12,7 @@ from tests import is_tol, run_prob_test,load_truth
 env = {
     **funcprimitives,
     'sample*': lambda d: d.sample(),
-    'observe*': lambda d, y: d.sample(),    # ignore observe for now
+    'observe*': lambda d, y: None,    # ignore observe for now
     'if': lambda e1, e2, e3: e2 if e1 else e3,
     'vars': {}
 }
@@ -131,9 +131,6 @@ if __name__ == '__main__':
 
     #run_deterministic_tests()
     #run_probabilistic_tests()
-
-
-
 
     for i in range(1,5):
         graph = daphne(['graph','-i','../a2/programs/{}.daphne'.format(i)])
