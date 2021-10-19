@@ -27,7 +27,11 @@ def evaluate_program(ast):
 def eval(e, sigma, local_env, func_defs):
     if (not isinstance(e, list)) or len(e) == 1:
         if isinstance(e, list):
-            e = e[0]
+            # empty vector
+            if e[0] == 'vector':
+                return torch.tensor([]), sigma
+            else:
+                e = e[0]
         # case c
         if isinstance(e, numbers.Number):
             return torch.tensor(float(e)), sigma
@@ -115,12 +119,12 @@ def run_probabilistic_tests():
         
 if __name__ == '__main__':
 
-    run_deterministic_tests()
+    #run_deterministic_tests()
     
-    run_probabilistic_tests()
+    #run_probabilistic_tests()
 
     
-    for i in range(1,5):
+    for i in range(5,8):
         ast = daphne(['desugar', '-i', '../a2/programs/{}.daphne'.format(i)])
         print('\n\n\nSample of prior of program {}:'.format(i))
         print(evaluate_program(ast))

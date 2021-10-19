@@ -51,6 +51,7 @@ funcprimitives = {
     '*': op.mul,
     '/': op.truediv,
     'sqrt': lambda e: torch.sqrt(e),
+    'exp': lambda e: torch.exp(e),
     '>': op.gt,
     '<': op.lt,
     '>=': op.ge,
