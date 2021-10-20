@@ -124,7 +124,7 @@ if __name__ == '__main__':
     #run_probabilistic_tests()
 
     
-    for i in range(5,8):
+    for i in range(1,5):
         ast = daphne(['desugar', '-i', '../a2/programs/{}.daphne'.format(i)])
         print('\n\n\nSample of prior of program {}:'.format(i))
         print(evaluate_program(ast))

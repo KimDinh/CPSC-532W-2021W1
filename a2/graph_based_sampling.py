@@ -23,12 +23,6 @@ def deterministic_eval(exp):
     if type(exp) is list:
         op = exp[0]
         args = exp[1:]
-        # preprocess hashmap args to fit hashmap implementation in funcprimitives
-        if op == 'hash-map':
-            args_ = []
-            for arg in args:
-                args_ = args_ + arg
-            args = args_
         return env[op](*map(deterministic_eval, args))
     elif type(exp) is int or type(exp) is float:
         # We use torch for all numerical objects in our evaluator
@@ -87,7 +81,7 @@ def get_stream(graph):
 
 def run_deterministic_tests():
     
-    for i in range(1,14):
+    for i in range(1,13):
         #note: this path should be with respect to the daphne path!
         graph = daphne(['graph','-i','../a2/programs/tests/deterministic/test_{}.daphne'.format(i)])
         truth = load_truth('programs/tests/deterministic/test_{}.truth'.format(i))
