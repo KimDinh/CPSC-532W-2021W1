@@ -1,6 +1,9 @@
 **/.vscode/
 **/__pycache__/
-**/.DS_Store
 **/.ipynb_checkpoints/
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
 
 daphne/
