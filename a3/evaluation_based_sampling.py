@@ -13,11 +13,7 @@ def evaluate_program(ast):
     
     sigma = {}
     local_env = {}
-    func_defs = {}
-    
-    for i in range(len(ast)):
-        if isinstance(ast[i], list) and ast[i][0] == "defn":
-            func_defs[ast[i][1]] = {"vars": ast[i][2], "exp": ast[i][3]}
+    func_defs = get_func_defs(ast)
     
     ast = ast[-1]
     ret, sigma = eval(ast, sigma, local_env, func_defs)
@@ -55,8 +51,10 @@ def eval(e, sigma, local_env, func_defs):
         return dist.sample(), sigma
     # case (observe d y)
     elif e[0] == "observe":
-        # ignore observe for now
-        return None, sigma
+        d1, sigma = eval(e[1], sigma, local_env, func_defs)
+        c2, sigma = eval(e[2], sigma, local_env, func_defs)
+        sigma['logW'] += d1.log_prob(c2)
+        return c2, sigma
     # case (e0 e1 ... en)
     else:
         c = []
@@ -76,7 +74,31 @@ def get_stream(ast):
     """Return a stream of prior samples"""
     while True:
         yield evaluate_program(ast)
+        
+
+def get_func_defs(ast):
+    func_defs = {}
+    for i in range(len(ast)):
+        if isinstance(ast[i], list) and ast[i][0] == "defn":
+            func_defs[ast[i][1]] = {"vars": ast[i][2], "exp": ast[i][3]}
     
+    return func_defs
+
+
+def likelihood_weighting(ast, num_samples):
+    func_defs = get_func_defs(ast)
+    ast = ast[-1]
+    samples = []
+    log_weights = []
+
+    for i in range(num_samples):
+        sigma = {'logW': 0}
+        r, sigma = eval(ast, sigma, {}, func_defs)
+        samples.append(r)
+        log_weights.append(sigma['logW'])
+
+    return samples, log_weights
+
 
 
 def run_deterministic_tests():
