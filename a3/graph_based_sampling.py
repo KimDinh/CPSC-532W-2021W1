@@ -12,23 +12,22 @@ from tests import is_tol, run_prob_test,load_truth
 env = {
     **funcprimitives,
     'sample*': lambda d: d.sample(),
-    'observe*': lambda d, y: None,    # ignore observe for now
+    'observe*': lambda d, y: y,
     'if': lambda e1, e2, e3: e2 if e1 else e3,
-    'vars': {}
 }
 
 
-def deterministic_eval(exp):
+def deterministic_eval(exp, vars):
     "Evaluation function for the deterministic target language of the graph based representation."
     if type(exp) is list:
         op = exp[0]
         args = exp[1:]
-        return env[op](*map(deterministic_eval, args))
+        return env[op](*[deterministic_eval(arg, vars) for arg in args])
     elif type(exp) is int or type(exp) is float:
         # We use torch for all numerical objects in our evaluator
         return torch.tensor(float(exp))
-    elif exp in env['vars']:
-        return env['vars'][exp]
+    elif exp in vars:
+        return vars[exp]
     else:
         raise("Expression type unknown.", exp)
 
@@ -58,11 +57,11 @@ def topological_sort(vertices, edges):
 def sample_from_joint(graph):
     "This function does ancestral sampling starting from the prior."
     topo_order = topological_sort(graph[1]['V'], graph[1]['A'])
-    env['vars'] = {}
+    vars = {}
     for u in topo_order:
-        env['vars'][u] = deterministic_eval(graph[1]['P'][u])
+        vars[u] = deterministic_eval(graph[1]['P'][u], vars)
 
-    return deterministic_eval(graph[2])
+    return deterministic_eval(graph[2], vars)
 
 
 def get_stream(graph):
@@ -83,9 +82,9 @@ def run_deterministic_tests():
     
     for i in range(1,13):
         #note: this path should be with respect to the daphne path!
-        graph = daphne(['graph','-i','../a2/programs/tests/deterministic/test_{}.daphne'.format(i)])
+        graph = daphne(['graph','-i','../a3/programs/tests/deterministic/test_{}.daphne'.format(i)])
         truth = load_truth('programs/tests/deterministic/test_{}.truth'.format(i))
-        ret = deterministic_eval(graph[-1])
+        ret = deterministic_eval(graph[-1], {})
         try:
             assert(is_tol(ret, truth))
         except AssertionError:
@@ -105,7 +104,7 @@ def run_probabilistic_tests():
     
     for i in range(1,7):
         #note: this path should be with respect to the daphne path!        
-        graph = daphne(['graph', '-i', '../a2/programs/tests/probabilistic/test_{}.daphne'.format(i)])
+        graph = daphne(['graph', '-i', '../a3/programs/tests/probabilistic/test_{}.daphne'.format(i)])
         truth = load_truth('programs/tests/probabilistic/test_{}.truth'.format(i))
         
         stream = get_stream(graph)
@@ -127,8 +126,8 @@ if __name__ == '__main__':
     #run_probabilistic_tests()
 
     for i in range(1,5):
-        graph = daphne(['graph','-i','../a2/programs/{}.daphne'.format(i)])
-        #print(graph, "\n\n\n")
+        graph = daphne(['graph','-i','../a3/programs/{}.daphne'.format(i)])
+        print(graph, "\n\n\n")
         print('\n\n\nSample of prior of program {}:'.format(i))
         print(sample_from_joint(graph))    
 

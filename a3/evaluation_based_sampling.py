@@ -105,7 +105,7 @@ def run_deterministic_tests():
     
     for i in range(1,14):
         #note: this path should be with respect to the daphne path!
-        ast = daphne(['desugar', '-i', '../a2/programs/tests/deterministic/test_{}.daphne'.format(i)])
+        ast = daphne(['desugar', '-i', '../a3/programs/tests/deterministic/test_{}.daphne'.format(i)])
         truth = load_truth('programs/tests/deterministic/test_{}.truth'.format(i))
         ret = evaluate_program(ast)
         try:
@@ -126,7 +126,7 @@ def run_probabilistic_tests():
     
     for i in range(1,7):
         #note: this path should be with respect to the daphne path!        
-        ast = daphne(['desugar', '-i', '../a2/programs/tests/probabilistic/test_{}.daphne'.format(i)])
+        ast = daphne(['desugar', '-i', '../a3/programs/tests/probabilistic/test_{}.daphne'.format(i)])
         truth = load_truth('programs/tests/probabilistic/test_{}.truth'.format(i))
         
         stream = get_stream(ast)
@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
     
     for i in range(1,5):
-        ast = daphne(['desugar', '-i', '../a2/programs/{}.daphne'.format(i)])
+        ast = daphne(['desugar', '-i', '../a3/programs/{}.daphne'.format(i)])
         print('\n\n\nSample of prior of program {}:'.format(i))
         print(evaluate_program(ast))
     
