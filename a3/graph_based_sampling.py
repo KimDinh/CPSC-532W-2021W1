@@ -56,12 +56,18 @@ def topological_sort(vertices, edges):
 
 def sample_from_joint(graph):
     "This function does ancestral sampling starting from the prior."
-    topo_order = topological_sort(graph[1]['V'], graph[1]['A'])
-    vars = {}
-    for u in topo_order:
-        vars[u] = deterministic_eval(graph[1]['P'][u], vars)
+    vars = sample_vars_from_joint(graph[1])
 
     return deterministic_eval(graph[2], vars)
+
+
+def sample_vars_from_joint(graph):
+    topo_order = topological_sort(graph['V'], graph['A'])
+    vars = {}
+    for u in topo_order:
+        vars[u] = deterministic_eval(graph['P'][u], vars)
+    
+    return vars
 
 
 def get_stream(graph):
