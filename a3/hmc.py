@@ -9,6 +9,7 @@ class HMC:
         self.graph = graph[1]
         self.expr = graph[2]
         self.X = [v for v in self.graph['V'] if v not in self.graph['Y']]
+        self.graph['Y'] = {k: torch.tensor(v) for k, v in self.graph['Y'].items()}
 
     def U(self, X):
         U = 0
@@ -16,18 +17,18 @@ class HMC:
         for v in self.graph['V']:
             d = deterministic_eval(self.graph['P'][v][1], vars)
             U -= d.log_prob(vars[v])
-        
+
         return U
 
     def grad_U(self, X):
-        X.require_grad = True
+        X.requires_grad_(True)
         U = self.U(X)
         U.backward()
 
         return X.grad
     
     def H(self, X, R, M):
-        X.require_grad = True
+        X.requires_grad_(True)
         U = self.U(X)
         K = 0.5 * torch.matmul(R.t(), torch.matmul(M.inverse(), R))
 
@@ -35,26 +36,29 @@ class HMC:
 
     def leapfrog(self, X, R, T, epsilon):
         R_t_half = R - 0.5 * epsilon * self.grad_U(X)
-        X_t = copy.deepcopy(X)
+        X_t = X.detach().clone()
         for t in range(T-1):
-            X_t = X_t + epsilon * R_t_half
+            X_t = X_t.detach() + epsilon * R_t_half
             R_t_half = R_t_half - epsilon * self.grad_U(X_t)
-        X_t = X_t + epsilon * R_t_half
+        X_t = X_t.detach() + epsilon * R_t_half
         R_t = R_t_half - 0.5 * epsilon * self.grad_U(X_t)
 
-        return X_t, R_t
+        return X_t.detach(), R_t
     
     def hmc(self, X_init, num_samples, T, epsilon, M):
+        R_dist = dist.MultivariateNormal(torch.zeros(len(self.X)), M)
         samples = []
+        X = X_init
         for i in range(num_samples):
-            X = X_init if i == 0 else samples[i-1]
-            R = dist.MultivariateNormal(torch.zeros(len(self.X), M))
+            R = R_dist.sample()
             X_p, R_p = self.leapfrog(X, R, T, epsilon)
             if torch.rand(1) < torch.exp(-self.H(X_p, R_p, M) + self.H(X, R, M)):
-                samples.append(dict(zip(self.X, X_p)))
+                evaluated_expr = deterministic_eval(self.expr, {**dict(zip(self.X, X_p)), **self.graph['Y']})
+                X = X_p
             else:
-                samples.append(dict(zip(self.X, copy.deepcopy(X))))
-        
+                evaluated_expr = deterministic_eval(self.expr, {**dict(zip(self.X, X)), **self.graph['Y']})
+            samples.append(evaluated_expr.detach())
+
         return samples
     
     def sample(self, num_samples, T, epsilon, M):
