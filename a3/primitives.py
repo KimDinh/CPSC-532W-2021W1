@@ -78,5 +78,7 @@ funcprimitives = {
     'beta': dist.Beta,
     'bernoulli': dist.Bernoulli,
     'exponential': dist.Exponential,
-    'discrete': dist.Categorical
+    'discrete': dist.Categorical,
+    'gamma': dist.Gamma,
+    'dirichlet': dist.Dirichlet
 }
