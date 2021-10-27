@@ -1,7 +1,7 @@
 import torch
 import copy
 from daphne import daphne
-from graph_based_sampling import deterministic_eval, sample_vars_from_joint
+from graph_based_sampling import deterministic_eval, sample_vars_from_joint, log_joint_density
 
 class MH_Gibbs:
     """
@@ -13,7 +13,7 @@ class MH_Gibbs:
         self.graph = graph[1]
         self.expr = graph[2]
         self.X = [v for v in self.graph['V'] if v not in self.graph['Y']]
-        self.graph['Y'] = {k: torch.tensor(v) for k, v in self.graph['Y'].items()}
+        self.graph['Y'] = {k: torch.tensor(float(v)) for k, v in self.graph['Y'].items()}
   
     def accept(self, x, X_p, X):
         q = deterministic_eval(self.graph['P'][x][1], {**X, **self.graph['Y']})
@@ -44,11 +44,14 @@ class MH_Gibbs:
 
     def gibbs(self, X_init, num_samples):
         samples = []
-        for i in range(num_samples):
-            X = self.gibbs_step(X_init if i == 0 else samples[i-1])
-            samples.append(deterministic_eval(self.expr, {**X, **self.graph['Y']}))
+        log_density = []
+        for i in range(num_samples+1000):
+            X = self.gibbs_step(X_init if i == 0 else X)
+            if i >= 1000:
+                log_density.append(log_joint_density(self.graph, {**X, **self.graph['Y']}))
+                samples.append(deterministic_eval(self.expr, {**X, **self.graph['Y']}))
 
-        return samples
+        return samples, log_density
     
     def sample(self, num_samples):
         vars = sample_vars_from_joint(self.graph)
