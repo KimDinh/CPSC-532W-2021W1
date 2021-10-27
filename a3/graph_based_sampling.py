@@ -23,11 +23,13 @@ def deterministic_eval(exp, vars):
         op = exp[0]
         args = exp[1:]
         return env[op](*[deterministic_eval(arg, vars) for arg in args])
-    elif type(exp) is int or type(exp) is float:
+    elif type(exp) in [int, float, bool]:
         # We use torch for all numerical objects in our evaluator
         return torch.tensor(float(exp))
     elif exp in vars:
         return vars[exp]
+    elif exp is None:
+        return None
     else:
         raise("Expression type unknown.", exp)
 
@@ -68,6 +70,20 @@ def sample_vars_from_joint(graph):
         vars[u] = deterministic_eval(graph['P'][u], vars)
     
     return vars
+
+
+def log_joint_density(graph, vars):
+    "Return the log joint density given the graph and values of the variables"
+    log_joint = torch.tensor(0.0)
+    for u in graph['V']:
+        link = deterministic_eval(graph['P'][u][1], vars)
+        if type(vars[u]) in [int, float, bool]:
+            val = torch.tensor(float(vars[u])) 
+        else:
+            val = vars[u]
+        log_joint += link.log_prob(val)
+
+    return log_joint
 
 
 def get_stream(graph):
