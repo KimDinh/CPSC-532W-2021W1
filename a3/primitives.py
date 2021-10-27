@@ -2,6 +2,7 @@ import torch
 import operator as op
 import copy
 import torch.distributions as dist
+from torch.distributions.normal import Normal
 
 def vector(*args):
     try:
@@ -44,6 +45,13 @@ def cons(e1, e2):
         ret = ret.insert(e1, 0)
     return ret
 
+class Dirac(Normal):
+    def __init__(self, loc, validate_args=None):
+        super().__init__(loc, torch.tensor(0.03), validate_args=validate_args)
+    
+    def sample(self, sample_shape=...):
+        return self.loc
+
 
 funcprimitives = {
     '+': op.add,
@@ -57,6 +65,8 @@ funcprimitives = {
     '>=': op.ge,
     '<=': op.le,
     '=': op.eq,
+    'and': lambda e1, e2: e1 and e2,
+    'or': lambda e1, e2: e1 or e2,
     'vector': vector,
     'hash-map': hashmap,
     'get': get,
@@ -80,5 +90,7 @@ funcprimitives = {
     'exponential': dist.Exponential,
     'discrete': dist.Categorical,
     'gamma': dist.Gamma,
-    'dirichlet': dist.Dirichlet
+    'dirichlet': dist.Dirichlet,
+    'flip': dist.Bernoulli,
+    'dirac': Dirac
 }
