@@ -8,3 +8,4 @@
 
 daphne/
 **/figs/
+**/data/

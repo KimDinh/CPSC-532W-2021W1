@@ -1,8 +1,7 @@
 import torch
 import operator as op
 import copy
-import torch.distributions as dist
-from torch.distributions.normal import Normal
+import distributions
 
 def vector(*args):
     try:
@@ -45,7 +44,7 @@ def cons(e1, e2):
         ret = ret.insert(e1, 0)
     return ret
 
-class Dirac(Normal):
+class Dirac(torch.distributions.Normal):
     def __init__(self, loc, validate_args=None):
         super().__init__(loc, torch.tensor(0.03), validate_args=validate_args)
     
@@ -83,14 +82,14 @@ funcprimitives = {
     'mat-transpose': lambda e: e.T,
     'mat-tanh': torch.tanh,
     'mat-repmat': lambda e1, e2, e3: e1.repeat(int(e2), int(e3)),
-    'normal': dist.Normal,
-    'uniform': dist.Uniform,
-    'beta': dist.Beta,
-    'bernoulli': dist.Bernoulli,
-    'exponential': dist.Exponential,
-    'discrete': dist.Categorical,
-    'gamma': dist.Gamma,
-    'dirichlet': dist.Dirichlet,
-    'flip': dist.Bernoulli,
+    'normal': distributions.Normal,
+    'uniform': torch.distributions.Uniform,
+    'beta': torch.distributions.Beta,
+    'bernoulli': distributions.Bernoulli,
+    'exponential': torch.distributions.Exponential,
+    'discrete': distributions.Categorical,
+    'gamma': distributions.Gamma,
+    'dirichlet': distributions.Dirichlet,
+    'flip': distributions.Bernoulli,
     'dirac': Dirac
 }
