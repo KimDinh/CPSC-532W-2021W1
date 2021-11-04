@@ -1,7 +1,6 @@
 import torch
 import operator as op
 import copy
-import distributions
 
 def vector(*args):
     try:
@@ -82,14 +81,14 @@ funcprimitives = {
     'mat-transpose': lambda e: e.T,
     'mat-tanh': torch.tanh,
     'mat-repmat': lambda e1, e2, e3: e1.repeat(int(e2), int(e3)),
-    'normal': distributions.Normal,
+    'normal': torch.distributions.Normal,
     'uniform': torch.distributions.Uniform,
     'beta': torch.distributions.Beta,
-    'bernoulli': distributions.Bernoulli,
+    'bernoulli': torch.distributions.Bernoulli,
     'exponential': torch.distributions.Exponential,
-    'discrete': distributions.Categorical,
-    'gamma': distributions.Gamma,
-    'dirichlet': distributions.Dirichlet,
-    'flip': distributions.Bernoulli,
+    'discrete': torch.distributions.Categorical,
+    'gamma': torch.distributions.Gamma,
+    'dirichlet': torch.distributions.Dirichlet,
+    'flip': torch.distributions.Bernoulli,
     'dirac': Dirac
 }
