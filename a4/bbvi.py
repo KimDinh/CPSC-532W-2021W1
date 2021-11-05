@@ -8,7 +8,8 @@ optim_dist = {
     'bernoulli': distributions.Bernoulli,
     'discrete': distributions.Categorical,
     'gamma': distributions.Gamma,
-    'dirichlet': distributions.Dirichlet
+    'dirichlet': distributions.Dirichlet,
+    'uniform-continuous': lambda low, high: distributions.Gamma((low+high)/2, torch.tensor(1.0))
 }
 
 class BBVI:
