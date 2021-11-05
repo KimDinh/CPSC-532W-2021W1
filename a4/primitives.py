@@ -1,7 +1,6 @@
 import torch
 import operator as op
 import copy
-import distributions
 
 def vector(*args):
     try:
@@ -59,6 +58,7 @@ funcprimitives = {
     '/': op.truediv,
     'sqrt': lambda e: torch.sqrt(e),
     'exp': lambda e: torch.exp(e),
+    'abs': lambda e: torch.abs(e),
     '>': op.gt,
     '<': op.lt,
     '>=': op.ge,
@@ -82,14 +82,15 @@ funcprimitives = {
     'mat-transpose': lambda e: e.T,
     'mat-tanh': torch.tanh,
     'mat-repmat': lambda e1, e2, e3: e1.repeat(int(e2), int(e3)),
-    'normal': distributions.Normal,
-    'uniform': torch.distributions.Uniform,
+    'normal': torch.distributions.Normal,
+    'uniform': lambda e1, e2: torch.distributions.Gamma((e1+e2)/2, 1),
+    'uniform-continuous': lambda e1, e2: torch.distributions.Gamma((e1+e2)/2, 1),
     'beta': torch.distributions.Beta,
-    'bernoulli': distributions.Bernoulli,
+    'bernoulli': torch.distributions.Bernoulli,
     'exponential': torch.distributions.Exponential,
-    'discrete': distributions.Categorical,
-    'gamma': distributions.Gamma,
-    'dirichlet': distributions.Dirichlet,
-    'flip': distributions.Bernoulli,
+    'discrete': torch.distributions.Categorical,
+    'gamma': torch.distributions.Gamma,
+    'dirichlet': torch.distributions.Dirichlet,
+    'flip': torch.distributions.Bernoulli,
     'dirac': Dirac
 }
