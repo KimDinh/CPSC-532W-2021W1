@@ -73,7 +73,7 @@ def append(addr, e1, e2):
         ret.append(e2)
     return ret
 
-def conj(addr, e1, e2):
+def cons(addr, e1, e2):
     ret = copy.deepcopy(e1)
     if isinstance(ret, torch.Tensor):
         ret = torch.cat([e2.unsqueeze(dim=0), ret])
@@ -122,7 +122,8 @@ env = {
     'peek': lambda addr, e: get(addr, e, -1),
     'append': append,
     'put': put,
-    'conj': conj,
+    'conj': append,
+    'cons': cons,
     'empty?': empty
 }
 
