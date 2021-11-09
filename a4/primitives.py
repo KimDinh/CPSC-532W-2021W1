@@ -40,7 +40,7 @@ def cons(e1, e2):
     if isinstance(ret, torch.Tensor):
         ret = torch.cat([e1.unsqueeze(dim=0), ret])
     else:
-        ret = ret.insert(e1, 0)
+        ret.insert(0, e1)
     return ret
 
 class Dirac(torch.distributions.Normal):
