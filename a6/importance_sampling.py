@@ -3,7 +3,7 @@ import torch
 import numpy as np
 import json
 import sys
-
+from daphne import daphne
 
 
 def get_IS_sample(exp):
@@ -11,13 +11,19 @@ def get_IS_sample(exp):
     output = lambda x: x
     res =  evaluate(exp, env=None)('addr_start', output)
     #TODO : hint, "get_sample_from_prior" as a basis for your solution
+    logW = torch.tensor(0.0)
+    while type(res) is tuple:
+        cont, args, sigma = res
+        if sigma['type'] == 'observe':
+            logW += sigma['logW']
+        res = cont(*args)
+
     return logW, res
 
 if __name__ == '__main__':
 
     for i in range(1,5):
-        with open('programs/{}.json'.format(i),'r') as f:
-            exp = json.load(f)
+        exp = daphne(['desugar-hoppl-cps', '-i', '../a6/programs/{}.daphne'.format(i)])
         print('\n\n\nSample of prior of program {}:'.format(i))
         log_weights = []
         values = []
