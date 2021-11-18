@@ -23,7 +23,8 @@ def get_IS_sample(exp):
 if __name__ == '__main__':
 
     for i in range(1,5):
-        exp = daphne(['desugar-hoppl-cps', '-i', '../a6/programs/{}.daphne'.format(i)])
+        with open('programs/{}.json'.format(i),'r') as f:
+            exp = json.load(f)
         print('\n\n\nSample of prior of program {}:'.format(i))
         log_weights = []
         values = []

@@ -203,14 +203,17 @@ def run_probabilistic_tests(use_cache=True, cache='programs/tests/'):
 
 if __name__ == '__main__':
     # run the tests, if you wish:  
-    run_deterministic_tests(use_cache=False)
-    run_probabilistic_tests(use_cache=False)
+    #run_deterministic_tests(use_cache=False)
+    #run_probabilistic_tests(use_cache=False)
 
-    #load your precompiled json's here:
-    exp = daphne(['desugar-hoppl-cps', '-i', '../a6/programs/4.daphne'])
+    for i in range(1,5):
+        #load your precompiled json's here:
+        exp = daphne(['desugar-hoppl-cps', '-i', '../a6/programs/{}.daphne'.format(i)])
+        with open('programs/{}.json'.format(i),'w') as f:
+            json.dump(exp, f)
 
-    #this should run a sample from the prior
-    print(sample_from_prior(exp))
+        #this should run a sample from the prior
+        print(sample_from_prior(exp))
 
 
     #you can see how the CPS works here, you define a continuation for the last call:
